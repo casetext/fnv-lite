@@ -6,9 +6,9 @@
   "scripts": {
     "test": "mocha"
   },
-  "author": "",
+  "author": "Harry Schmidt <goldibex@casetext.com>",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
     "chai": "^2.3.0"
   }
 }

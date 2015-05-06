@@ -28,4 +28,27 @@ describe('FNV', function() {
 
   });
 
+  describe('.base64', function() {
+
+    it('generates FNV hashes for strings', function() {
+
+      expect(FNV.base64(''))
+      .to.equal('bGInLge7AUJiuCF1YpXFjQ==');
+
+      expect(FNV.base64('a'))
+      .to.equal('0ijLaW8ajK94kStwTkqJZA==');
+
+      expect(FNV.base64('aa'))
+      .to.equal('CICVRLqrG+laoHMwVbaZJw==');
+
+      expect(FNV.base64('hello world'))
+      .to.equal('bBVXmf3I7sS5FSOAjncmtw==');
+
+      expect(FNV.base64(allGoodMen))
+      .to.equal('UbOOWhy3VrMOicJCTfUw8w==');
+
+    });
+
+  });
+
 });

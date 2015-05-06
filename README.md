@@ -1,6 +1,8 @@
 fnv-lite
 ========
 
+[![Build Status](https://travis-ci.org/casetext/fnv-lite.svg)](https://travis-ci.org/casetext/fnv-lite)
+
 A much smaller FNV-1a hash library, friendlier to browsers.
 
 fnv-lite implements the 128-bit variant of Fowler-Noll-Vo version 1a. It emits hashes in hex, base64, and as a raw array of octets.

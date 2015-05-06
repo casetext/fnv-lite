@@ -159,7 +159,7 @@
 
     var result = '';
 
-    for (var i = 0; i < 12; i += 3) {
+    for (var i = 0; i < 15; i += 3) {
 
       var unit = (this._value[i] << 16) + (this._value[i+1] << 8) + this._value[i+2];
 
@@ -170,7 +170,11 @@
 
     }
 
-    return result + '==';
+    var lastUnit = this._value[15] << 16;
+
+    return result + BASE64_LOOKUP[(lastUnit >> 18) & 0x3f] +
+      BASE64_LOOKUP[(lastUnit >> 12) & 0x3f] +
+      '==';
 
   };
 

@@ -51,4 +51,27 @@ describe('FNV', function() {
 
   });
 
+  describe('.base36', function() {
+
+    it('generates FNV hashes for strings', function() {
+
+      expect(FNV.base36(''))
+      .to.equal('6ezv16m7wweombnkd3ldlii6l');
+
+      expect(FNV.base36('a'))
+      .to.equal('cfwr9hnz04ggt3okf3kia57xg');
+
+      expect(FNV.base36('aa'))
+      .to.equal('i4cjt3djtneq4zg3dmh5dyjr');
+
+      expect(FNV.base36('hello world'))
+      .to.equal('6ecu9ro7dc0j08gi9bct68uk7');
+
+      expect(FNV.base36(allGoodMen))
+      .to.equal('4u4ncckaq1vh7avhw1j3bfbw3');
+
+    });
+
+  });
+
 });

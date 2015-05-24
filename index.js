@@ -144,6 +144,8 @@
     switch(encoding) {
     case 'base64':
       return this._b64();
+    case 'base36':
+      return this._b36();
     case 'hex':
       return this._value.reduce(function(result, octet) {
         return result + ('00' + octet.toString(16)).slice(-2);
@@ -178,8 +180,70 @@
 
   };
 
+
+  function longDivide36(longNum) {
+
+    var remainder = 0,
+      operand = [],
+      operandValue = 0;
+
+    for (var i = 0; i < 16; i++) {
+
+      operand.push(longNum[i]);
+
+      operandValue = 0;
+      for (var j = 0; j < operand.length; j++) {
+        operandValue += operand[j] * Math.pow(256, operand.length-(j+1));
+      }
+
+      longNum[i] = Math.floor(operandValue / 36);
+      remainder = operandValue % 36;
+
+      if (longNum[i] > 0) {
+        operand = [remainder];
+      }
+
+    }
+
+    return remainder;
+
+  }
+
+  function isZero(array) {
+
+    for (var i = 0; i < array.length; i++) {
+      if (array[i] !== 0) {
+        return false;
+      }
+    }
+    return true;
+
+  }
+
+  var BASE36_LOOKUP = '0123456789abcdefghijklmnopqrstuvwxyz';
+  FNV.prototype._b36 = function() {
+
+    // initialize scratch
+    for (var x = 0; x < 16; x++) {
+      this._scratch[x] = this._value[x];
+    }
+
+    var resultString = '';
+
+    while(!isZero(this._scratch)) {
+      resultString = BASE36_LOOKUP.charAt(longDivide36(this._scratch)) + resultString;
+    }
+
+    return resultString;
+
+  };
+
   FNV.hex = function(string) {
     return new FNV().update(string).digest('hex');
+  };
+
+  FNV.base36 = function(string) {
+    return new FNV().update(string).digest('base36');
   };
 
   FNV.base64 = function(string) {

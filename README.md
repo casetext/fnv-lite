@@ -20,8 +20,8 @@ npm install --save fnv-lite
 var FNV = require('fnv-lite');
 
 console.log(FNV.hex('')); // 6c62272e07bb014262b821756295c58d
-console.log(FNV.base64('')); // bGInLge7AUJiuCF1= 
-
+console.log(FNV.base64('')); // bGInLge7AUJiuCF1YpXFjQ==
+console.log(FNV.base36('')); // 6ezv16m7wweombnkd3ldlii6l
 ```
 
 ## API
@@ -29,6 +29,14 @@ console.log(FNV.base64('')); // bGInLge7AUJiuCF1=
 ### FNV.hex(string)
 
 Returns the FNV-1a hash of `string` as a hex string.
+
+### FNV.base36(string)
+
+Returns the FNV-1a hash of `string` as a base36-encoded string.
+Base36 is a relic of the Javascript universe, in that it happens
+to be the largest number base you can pass to `Number#toString()`.
+This method is included because it replicates the behavior of the `str()`
+serialization in `fnv-plus`.
 
 ### FNV.base64(string)
 
@@ -44,9 +52,9 @@ Add the contents of the supplied string/byte array to the hash and recompute its
 
 Returns the original `FNV` object, so you can chain it.
 
-### FNV#digest(['hex' | 'base64'])
+### FNV#digest(['hex' | 'base36' | 'base64'])
 
-Retrieve the current value of the hash in either hexadecimal or base64.
+Retrieve the current value of the hash in hexadecimal, base36 (a Javascript relic), or base64.
 If you don't supply a digest type, fnv-lite will return the current hash
 value as a "byte" array.
 

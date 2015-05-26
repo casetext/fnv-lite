@@ -1,6 +1,4 @@
 
-'use strict';
-
 (function (root, factory) {
 
   if (typeof define === 'function' && define.amd) {
@@ -17,6 +15,8 @@
   }
 
 }(this, function() {
+
+  'use strict';
 
   // 1000000000000000000013b
   var prime = [

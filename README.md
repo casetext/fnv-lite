@@ -21,6 +21,7 @@ var FNV = require('fnv-lite');
 
 console.log(FNV.hex('')); // 6c62272e07bb014262b821756295c58d
 console.log(FNV.base64('')); // bGInLge7AUJiuCF1YpXFjQ==
+console.log(FNV.base64Url('')); // bGInLge7AUJiuCF1YpXFjQ
 console.log(FNV.base36('')); // 6ezv16m7wweombnkd3ldlii6l
 ```
 
@@ -41,6 +42,14 @@ serialization in `fnv-plus`.
 ### FNV.base64(string)
 
 Returns the FNV-1a hash of `string` as a base64-encoded string.
+
+### FNV.base64Url(string)
+
+Returns the FNV-1a hash of `string` as a URL-safe base64-encoded string,
+which is different from a regular base64 string in the following respects:
+- "+" becomes "-".
+- "/" becomes "\_".
+- The trailing padding characters (==) are omitted.
 
 ### new FNV()
 

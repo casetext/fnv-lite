@@ -142,6 +142,8 @@
   FNV.prototype.digest = function(encoding) {
 
     switch(encoding) {
+    case 'base64Url':
+      return this._b64(true);
     case 'base64':
       return this._b64();
     case 'base36':
@@ -180,6 +182,41 @@
 
   };
 
+  var BASE64_LOOKUP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  var BASE64_SAFE_LOOKUP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  FNV.prototype._b64 = function(safe) {
+
+    var result = '';
+
+    var lookup,
+      trailer;
+
+    if (safe) {
+      lookup = BASE64_SAFE_LOOKUP;
+      trailer = '';
+    } else {
+      lookup = BASE64_LOOKUP;
+      trailer = '==';
+    }
+
+    for (var i = 0; i < 15; i += 3) {
+
+      var unit = (this._value[i] << 16) + (this._value[i+1] << 8) + this._value[i+2];
+
+      result += lookup[(unit >> 18) & 0x3f] +
+        lookup[(unit >> 12) & 0x3f] +
+        lookup[(unit >> 6) & 0x3f] +
+        lookup[unit & 0x3f];
+
+    }
+
+    var lastUnit = this._value[15] << 16;
+
+    return result + lookup[(lastUnit >> 18) & 0x3f] +
+      lookup[(lastUnit >> 12) & 0x3f] +
+      trailer;
+
+  };
 
   function longDivide36(longNum) {
 
@@ -248,6 +285,10 @@
 
   FNV.base64 = function(string) {
     return new FNV().update(string).digest('base64');
+  };
+
+  FNV.base64Url = function(string) {
+    return new FNV().update(string).digest('base64Url');
   };
 
   return FNV;

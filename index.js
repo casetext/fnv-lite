@@ -18,55 +18,63 @@
 
   'use strict';
 
-  // 1000000000000000000013b
-  var prime = [
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x01,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x01,
-    0x3b
-  ];
+  //
+  // FNV Interface
 
+  // 1000000000000000000013b
+  FNV.PRIME = [ 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x3b ];
+
+  FNV.BASE64_LOOKUP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  FNV.BASE64_SAFE_LOOKUP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  FNV.BASE36_LOOKUP = '0123456789abcdefghijklmnopqrstuvwxyz';
+
+  // public class methods.
+  FNV.hex = hex;
+  FNV.base36 = base36;
+  FNV.base64 = base64;
+  FNV.base64Url = base64Url;
+
+  // Public instance methods.
+  FNV.prototype.update = update;
+  FNV.prototype.digest = digest;
+
+  // "Private" instance methods.
+  FNV.prototype._b36 = _b36;
+  FNV.prototype._b64 = _b64;
+  FNV.prototype._primeMultiply = _primeMultiply;
+ 
+  return FNV;
+
+  //
+  // FNV Implementation
 
   function FNV() {
 
     //6c62272e07bb014262b821756295c58d
-    this._value = [
-      0x6c,
-      0x62,
-      0x27,
-      0x2e,
-      0x07,
-      0xbb,
-      0x01,
-      0x42,
-      0x62,
-      0xb8,
-      0x21,
-      0x75,
-      0x62,
-      0x95,
-      0xc5,
-      0x8d
-    ];
-
+    this._value = [ 0x6c, 0x62, 0x27, 0x2e, 0x07, 0xbb, 0x01, 0x42, 0x62, 0xb8, 0x21, 0x75, 0x62, 0x95, 0xc5, 0x8d ];
     this._scratch = new Array(16);
 
   }
 
+  // Class method implementations.
+  function hex(string) {
+    return new FNV().update(string).digest('hex');
+  }
 
-  FNV.prototype.update = function(item) {
+  function base36(string) {
+    return new FNV().update(string).digest('base36');
+  }
+
+  function base64(string) {
+    return new FNV().update(string).digest('base64');
+  }
+
+  function base64Url(string) {
+    return new FNV().update(string).digest('base64Url');
+  }
+
+  // Public instance method impleentations.
+  function update(item) {
 
     var i;
 
@@ -101,9 +109,29 @@
 
     return this;
 
-  };
+  }
 
-  FNV.prototype._primeMultiply = function() {
+  function digest(encoding) {
+
+    switch(encoding) {
+    case 'base64Url':
+      return this._b64(true);
+    case 'base64':
+      return this._b64();
+    case 'base36':
+      return this._b36();
+    case 'hex':
+      return this._value.reduce(function(result, octet) {
+        return result + ('00' + octet.toString(16)).slice(-2);
+      }, '');
+    default:
+      return this._value.slice(0);
+    }
+
+  }
+
+  // Private instance method implementations.
+  function _primeMultiply() {
 
     var product, x;
 
@@ -116,7 +144,7 @@
 
       for (var y = 0; y < 16-x; y++) {
 
-        product = this._value[15-x] * prime[15-y] + (this._scratch[15-(x+y)] || 0);
+        product = this._value[15-x] * FNV.PRIME[15-y] + (this._scratch[15-(x+y)] || 0);
 
         if ( product > 255 ) {
 
@@ -137,54 +165,26 @@
     this._scratch = this._value;
     this._value = newValue;
 
-  };
+  }
+ 
+  function _b36() {
 
-  FNV.prototype.digest = function(encoding) {
-
-    switch(encoding) {
-    case 'base64Url':
-      return this._b64(true);
-    case 'base64':
-      return this._b64();
-    case 'base36':
-      return this._b36();
-    case 'hex':
-      return this._value.reduce(function(result, octet) {
-        return result + ('00' + octet.toString(16)).slice(-2);
-      }, '');
-    default:
-      return this._value.slice(0);
+    // initialize scratch
+    for (var x = 0; x < 16; x++) {
+      this._scratch[x] = this._value[x];
     }
 
-  };
+    var resultString = '';
 
-  var BASE64_LOOKUP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  FNV.prototype._b64 = function() {
-
-    var result = '';
-
-    for (var i = 0; i < 15; i += 3) {
-
-      var unit = (this._value[i] << 16) + (this._value[i+1] << 8) + this._value[i+2];
-
-      result += BASE64_LOOKUP[(unit >> 18) & 0x3f] +
-        BASE64_LOOKUP[(unit >> 12) & 0x3f] +
-        BASE64_LOOKUP[(unit >> 6) & 0x3f] +
-        BASE64_LOOKUP[unit & 0x3f];
-
+    while(!isZero(this._scratch)) {
+      resultString = FNV.BASE36_LOOKUP.charAt(longDivide36(this._scratch)) + resultString;
     }
 
-    var lastUnit = this._value[15] << 16;
+    return resultString;
 
-    return result + BASE64_LOOKUP[(lastUnit >> 18) & 0x3f] +
-      BASE64_LOOKUP[(lastUnit >> 12) & 0x3f] +
-      '==';
+  }
 
-  };
-
-  var BASE64_LOOKUP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  var BASE64_SAFE_LOOKUP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-  FNV.prototype._b64 = function(safe) {
+  function _b64(safe) {
 
     var result = '';
 
@@ -192,10 +192,10 @@
       trailer;
 
     if (safe) {
-      lookup = BASE64_SAFE_LOOKUP;
+      lookup = FNV.BASE64_SAFE_LOOKUP;
       trailer = '';
     } else {
-      lookup = BASE64_LOOKUP;
+      lookup = FNV.BASE64_LOOKUP;
       trailer = '==';
     }
 
@@ -216,8 +216,9 @@
       lookup[(lastUnit >> 12) & 0x3f] +
       trailer;
 
-  };
+  }
 
+  // Inner functions.
   function longDivide36(longNum) {
 
     var remainder = 0,
@@ -253,44 +254,9 @@
         return false;
       }
     }
+    
     return true;
 
   }
-
-  var BASE36_LOOKUP = '0123456789abcdefghijklmnopqrstuvwxyz';
-  FNV.prototype._b36 = function() {
-
-    // initialize scratch
-    for (var x = 0; x < 16; x++) {
-      this._scratch[x] = this._value[x];
-    }
-
-    var resultString = '';
-
-    while(!isZero(this._scratch)) {
-      resultString = BASE36_LOOKUP.charAt(longDivide36(this._scratch)) + resultString;
-    }
-
-    return resultString;
-
-  };
-
-  FNV.hex = function(string) {
-    return new FNV().update(string).digest('hex');
-  };
-
-  FNV.base36 = function(string) {
-    return new FNV().update(string).digest('base36');
-  };
-
-  FNV.base64 = function(string) {
-    return new FNV().update(string).digest('base64');
-  };
-
-  FNV.base64Url = function(string) {
-    return new FNV().update(string).digest('base64Url');
-  };
-
-  return FNV;
 
 }));

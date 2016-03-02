@@ -3,7 +3,7 @@ fnv-lite
 
 [![Build Status](https://travis-ci.org/casetext/fnv-lite.svg)](https://travis-ci.org/casetext/fnv-lite)
 
-A much smaller FNV-1a hash library, friendlier to browsers.
+A much smaller [FNV-1a](https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function#FNV-1a_hash) hash library, friendlier to browsers.
 
 fnv-lite implements the 128-bit variant of Fowler-Noll-Vo version 1a. It emits hashes in hex, base64, and as a raw array of octets.
 
@@ -71,6 +71,12 @@ value as a "byte" array.
 
 `fnv-plus` is an excellent library for server-side operations. Unfortunately it
 requires the `jsbn` library, which adds quite a lot of girth to browser builds.
+
+## More info
+
+ - [FNV-1a specification](http://tools.ietf.org/html/draft-eastlake-fnv-10)
+ - [A useful discussion of FNV-1a](http://www.isthe.com/chongo/tech/comp/fnv/#FNV-param)
+ - 
 
 ## License
 ISC.

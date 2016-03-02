@@ -76,7 +76,6 @@ requires the `jsbn` library, which adds quite a lot of girth to browser builds.
 
  - [FNV-1a specification](http://tools.ietf.org/html/draft-eastlake-fnv-10)
  - [A useful discussion of FNV-1a](http://www.isthe.com/chongo/tech/comp/fnv/#FNV-param)
- - 
 
 ## License
 ISC.
